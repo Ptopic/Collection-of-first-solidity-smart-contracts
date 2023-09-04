@@ -1,9 +1,8 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const { Web3 } = require('web3');
 const { abi, evm } = require('./compile');
-require('dotenv').config();
 
-// deploy code will go here
+require('dotenv').config();
 
 const provider = new HDWalletProvider(
 	process.env.NEUMONIC,
@@ -12,14 +11,16 @@ const provider = new HDWalletProvider(
 
 const web3 = new Web3(provider);
 
-const deployContract = async () => {
+const deploy = async () => {
 	const accounts = await web3.eth.getAccounts();
 
-	const deployResult = await new web3.eth.Contract(abi)
-    .deploy({ data: evm.bytecode.object, arguments: ['Hi there!'] })
-    .send({ gas: '1000000', from: accounts[0] });
+	console.log('Attempting to deploy from account', accounts[0]);
 
-	console.log('Contract deployed to: ', deployResult.options.address);
+	const result = await new web3.eth.Contract(abi)
+		.deploy({ data: evm.bytecode.object, arguments: ['Hi there!'] })
+		.send({ gas: '1000000', from: accounts[0] });
+
+	console.log('Contract deployed to', result.options.address);
+	provider.engine.stop();
 };
-
-deployContract();
+deploy();
