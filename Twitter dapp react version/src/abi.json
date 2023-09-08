@@ -172,6 +172,11 @@
 						"internalType": "uint256",
 						"name": "likes",
 						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "isLiked",
+						"type": "bool"
 					}
 				],
 				"internalType": "struct Twitter.Tweet[]",
@@ -218,6 +223,11 @@
 						"internalType": "uint256",
 						"name": "likes",
 						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "isLiked",
+						"type": "bool"
 					}
 				],
 				"internalType": "struct Twitter.Tweet",
@@ -298,6 +308,11 @@
 				"internalType": "uint256",
 				"name": "likes",
 				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "isLiked",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",

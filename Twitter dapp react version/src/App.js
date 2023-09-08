@@ -3,7 +3,7 @@ import contractABI from './abi.json';
 import Web3 from 'web3';
 
 // icons
-import { AiOutlineHeart } from 'react-icons/ai';
+import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
 
 function App() {
 	const [noWallerProvider, setNoWalletProvider] = useState(null);
@@ -14,7 +14,7 @@ function App() {
 	const [tweets, setTweets] = useState([]);
 	const msgRef = useRef(null);
 	const formRef = useRef(null);
-	const contractAddress = '0x425283d7C4c8639d3307413EB4Eaa67421E69347';
+	const contractAddress = '0x88cAAfe6b5bF4A91Cf7FC61Cb47DE6247EEc897a';
 
 	let web3 = new Web3(window.ethereum);
 
@@ -75,19 +75,25 @@ function App() {
 		}
 	};
 
-	// const likeTweet = async (author, id) => {
-	// 	const accounts = await web3.eth.getAccounts();
-	// 	try {
-	// 		await contract.methods.likeTweet(id, author).send({ from: accounts[0] });
-	// 	} catch (error) {
-	// 		console.error('User rejected request:', error);
-	// 	}
-	// };
-
-	const likeTweetBtn = async (e, author, id) => {
+	const likeTweetBtn = async (e, author, tweet) => {
 		try {
-			await contract.methods.likeTweet(id, author).send({ from: connected });
+			await contract.methods
+				.likeTweet(tweet.id, author)
+				.send({ from: connected });
 			displayTweets(connected);
+			console.log(tweet.isLiked);
+		} catch (error) {
+			console.error('Error liking tweet:', error);
+		}
+	};
+
+	const unLikeTweetBtn = async (e, author, tweet) => {
+		try {
+			await contract.methods
+				.unlikeTweet(tweet.id, author)
+				.send({ from: connected });
+			displayTweets(connected);
+			console.log(tweet.isLiked);
 		} catch (error) {
 			console.error('Error liking tweet:', error);
 		}
@@ -99,6 +105,7 @@ function App() {
 	return (
 		<div className="container">
 			<h1>Twitter DAPP</h1>
+			{noWallerProvider && <div id="connectMessage">{noWallerProvider}</div>}
 			<div className="connect">
 				<button id="connectWalletBtn" onClick={() => connectWallet()}>
 					Connect Wallet
@@ -141,9 +148,17 @@ function App() {
 								<div className="content">{tweet.content}</div>
 								<button
 									className="like-button"
-									onClick={(e) => likeTweetBtn(e, connected, tweet.id)}
+									onClick={(e) => {
+										tweet.isLiked
+											? unLikeTweetBtn(e, connected, tweet)
+											: likeTweetBtn(e, connected, tweet);
+									}}
 								>
-									<AiOutlineHeart size={26} />
+									{tweet.isLiked ? (
+										<AiFillHeart size={26} color={'#e0245e'} />
+									) : (
+										<AiOutlineHeart size={26} />
+									)}
 									<span className="likes-count">{tweet.likes}</span>
 								</button>
 							</div>
