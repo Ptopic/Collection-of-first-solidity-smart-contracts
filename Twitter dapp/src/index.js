@@ -1,19 +1,18 @@
 import contractABI from './abi.json';
 
-// 2️⃣ Set your smart contract address 👇
+// Set your smart contract address
 const contractAddress = '0x1975Dd69635C02277F16f31E55920133A133CdED';
 
 let web3 = new Web3(window.ethereum);
-// 3️⃣ connect to the contract using web3
-// HINT: https://web3js.readthedocs.io/en/v1.2.11/web3-eth-contract.html#new-contract
+// connect to the contract using web3
+// https://web3js.readthedocs.io/en/v1.2.11/web3-eth-contract.html#new-contract
 
 let contract = new web3.eth.Contract(contractABI, contractAddress);
 
 async function connectWallet() {
 	if (window.ethereum) {
-		// 1️⃣ Request Wallet Connection from Metamask
-		// ANSWER can be found here: https://docs.metamask.io/wallet/get-started/set-up-dev-environment/
-		// const accounts = YOUR CODE
+		// Request Wallet Connection from Metamask
+		// https://docs.metamask.io/wallet/get-started/set-up-dev-environment/
 
 		const accounts = await window.ethereum
 			.request({ method: 'eth_requestAccounts' })
@@ -38,13 +37,11 @@ async function connectWallet() {
 async function createTweet(content) {
 	const accounts = await web3.eth.getAccounts();
 	try {
-		// 4️⃣ call the contract createTweet method in order to crete the actual TWEET
-		// HINT: https://web3js.readthedocs.io/en/v1.2.11/web3-eth-contract.html#methods-mymethod-send
-		// use the "await" feature to wait for the function to finish execution
-		// what is await? https://javascript.info/async-await
+		// 4call the contract createTweet method in order to crete the actual TWEET
+		// https://web3js.readthedocs.io/en/v1.2.11/web3-eth-contract.html#methods-mymethod-send
 		await contract.methods.createTweet(content).send({ from: accounts[0] });
 
-		// 7️⃣ Uncomment the displayTweets function! PRETTY EASY 🔥
+		// Uncomment the displayTweets function! PRETTY EASY 🔥
 		// GOAL: reload tweets after creating a new tweet
 		displayTweets(accounts[0]);
 	} catch (error) {
@@ -56,9 +53,8 @@ async function displayTweets(userAddress) {
 	const tweetsContainer = document.getElementById('tweetsContainer');
 	let tempTweets = [];
 	tweetsContainer.innerHTML = '';
-	// 5️⃣ call the function getAllTweets from smart contract to get all the tweets
-	// HINT: https://web3js.readthedocs.io/en/v1.2.11/web3-eth-contract.html#methods-mymethod-call
-	// tempTweets = await YOUR CODE
+	// call the function getAllTweets from smart contract to get all the tweets
+	// https://web3js.readthedocs.io/en/v1.2.11/web3-eth-contract.html#methods-mymethod-call
 
 	tempTweets = await contract.methods.getAllTweets(userAddress).call();
 
@@ -129,10 +125,9 @@ function shortAddress(address, startLength = 6, endLength = 4) {
 async function likeTweet(author, id) {
 	const accounts = await web3.eth.getAccounts();
 	try {
-		// 8️⃣ call the likeTweet function from smart contract
+		// call the likeTweet function from smart contract
 		// INPUT: author and id
 		// GOAL: Save the like in the smart contract
-		// HINT: don't forget to use await 😉 👇
 
 		await contract.methods.likeTweet(id, author).send({ from: accounts[0] });
 	} catch (error) {
@@ -146,9 +141,7 @@ function setConnected(address) {
 	document.getElementById('connectMessage').style.display = 'none';
 	document.getElementById('tweetForm').style.display = 'block';
 
-	// 6️⃣ Call the displayTweets function with address as input
-	// This is the function in the javascript code, not smart contract 😉
-	// GOAL: display all tweets after connecting to metamask
+	// 6Call the displayTweets function with address as input
 	displayTweets(address);
 }
 
