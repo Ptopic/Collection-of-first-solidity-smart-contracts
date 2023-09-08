@@ -3,12 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {
+	EthereumClient,
+	w3mConnectors,
+	w3mProvider,
+} from '@web3modal/ethereum';
+import { Web3Modal, useWeb3Modal } from '@web3modal/react';
+import { configureChains, createConfig, WagmiConfig, useAccount } from 'wagmi';
+import { sepolia, mainnet, polygon } from 'wagmi/chains';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+	<React.StrictMode>
+		<App />
+	</React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

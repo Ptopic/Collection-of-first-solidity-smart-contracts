@@ -3,22 +3,29 @@
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
+		"@coinbase/wallet-sdk": "^3.7.1",
 		"@testing-library/jest-dom": "^5.17.0",
 		"@testing-library/react": "^13.4.0",
 		"@testing-library/user-event": "^13.5.0",
+		"@walletconnect/ethereum-provider": "^2.10.0",
+		"@walletconnect/modal": "^2.6.1",
+		"@walletconnect/web3-provider": "^1.8.0",
 		"@web3modal/ethereum": "^2.7.1",
 		"@web3modal/react": "^2.7.1",
+		"@web3modal/wagmi": "^3.0.0-alpha.5",
+		"ethers": "5.7",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"react-icons": "^4.11.0",
 		"react-scripts": "5.0.1",
-		"viem": "^1.10.7",
+		"viem": "^1.10.8",
 		"wagmi": "^1.4.1",
 		"web-vitals": "^2.1.4",
-		"web3": "^1.10.2"
+		"web3": "^1.10.2",
+		"web3modal": "^1.9.12"
 	},
 	"scripts": {
-		"start": "react-scripts start",
+		"start": "react-scripts start --host 192.168.1.200",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject"
