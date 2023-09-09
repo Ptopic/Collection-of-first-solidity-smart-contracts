@@ -24,32 +24,6 @@ function App() {
 	});
 	const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
-	// Meta mask old connect
-	// const connectWallet = async () => {
-	// 	if (window.ethereum) {
-	// 		const accounts = await window.ethereum
-	// 			.request({ method: 'eth_requestAccounts' })
-	// 			.catch((err) => {
-	// 				if (err.code === 4001) {
-	// 					console.log('Please connect to MetaMask.');
-	// 				} else {
-	// 					console.error(err);
-	// 				}
-	// 			});
-
-	// 		setConnected(accounts[0]);
-	// 		setAddress(`${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
-	// 		msgRef.current.style.display = 'none';
-	// 		formRef.current.style.display = 'block';
-	// 		displayTweets(accounts[0]);
-	// 	} else {
-	// 		console.error('No web3 provider detected');
-	// 		setNoWalletProvider(
-	// 			'No web3 provider detected. Please install MetaMask.'
-	// 		);
-	// 	}
-	// };
-
 	return (
 		<>
 			<WagmiConfig config={wagmiConfig}>
