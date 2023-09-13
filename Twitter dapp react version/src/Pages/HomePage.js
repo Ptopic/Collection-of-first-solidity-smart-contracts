@@ -1,158 +1,111 @@
 import React, { useState, useEffect, useRef } from 'react';
-import contractABI from '../abi.json';
-import Web3 from 'web3';
 import { useWeb3Modal } from '@web3modal/react';
-import { useAccount } from 'wagmi';
 
-// icons
-import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
+// components
+import Connect from '../Components/Connect';
+import AddTweet from '../Components/AddTweet';
+import Tweets from '../Components/Tweets';
+import ProfileCreation from '../Components/ProfileCreation';
 
 function HomePage() {
-	const { open, close } = useWeb3Modal();
-	const { address, isConnected } = useAccount();
-	const [noWallerProvider, setNoWalletProvider] = useState(null);
-	const [displayAddress, setDisplayAddress] = useState(null);
+	const { open } = useWeb3Modal();
 	const [loading, setLoading] = useState(false);
-	const [text, setText] = useState();
+	const [account, setAccount] = useState(null);
+	const [profileExists, setProfileExists] = useState(null);
+	const [web3, setWeb3] = useState(null);
+	const [contract, setContract] = useState(null);
+	const [profileContract, setProfileContract] = useState(null);
 	const [tweets, setTweets] = useState([]);
-	const msgRef = useRef(null);
-	const formRef = useRef(null);
-	const contractAddress = '0x88cAAfe6b5bF4A91Cf7FC61Cb47DE6247EEc897a';
 
-	let web3 = new Web3(window.ethereum);
-
-	let contract = new web3.eth.Contract(contractABI, contractAddress);
-
-	const connectWallet = async () => {
-		open();
-
-		setDisplayAddress(`${address.slice(0, 6)}...${address.slice(-4)}`);
-		msgRef.current.style.display = 'none';
-		formRef.current.style.display = 'block';
-		displayTweets(address);
-	};
-
-	const createTweet = async () => {
-		const accounts = await web3.eth.getAccounts();
-		try {
-			setLoading(true);
-			await contract.methods.createTweet(text).send({
-				from: accounts[0],
-			});
-			setLoading(false);
-
-			displayTweets(accounts[0]);
-		} catch (error) {
-			console.error('User rejected request:', error);
-			setLoading(false);
+	async function getTweets() {
+		if (!web3 || !contract) {
+			console.error('Web3 or contract not initialized.');
+			return;
 		}
-	};
 
-	const displayTweets = async (userAddress) => {
-		let tempTweets = await contract.methods.getAllTweets(userAddress).call();
-		setTweets(tempTweets);
-	};
+		const tempTweets = await contract.methods.getAllTweets(account).call();
+		const tweets = [...tempTweets];
+		tweets.sort((a, b) => b.timestamp - a.timestamp);
+		setTweets(tweets);
+		setLoading(false);
+	}
 
-	const formSubmit = async (e) => {
-		e.preventDefault();
-		try {
-			await createTweet(text);
-		} catch (error) {
-			console.error('Error sending tweet:', error);
+	async function checkProfile() {
+		const userProfile = await getProfile(account);
+
+		setProfileExists(userProfile);
+	}
+
+	async function getProfile() {
+		if (!web3 || !profileContract || !account) {
+			console.error(
+				'Web3 or profileContract not initialized or account not connected.'
+			);
+			return;
 		}
-	};
 
-	const likeTweetBtn = async (e, author, tweet) => {
-		try {
-			await contract.methods
-				.likeTweet(tweet.id, author)
-				.send({ from: address });
-			displayTweets(address);
-			console.log(tweet.isLiked);
-		} catch (error) {
-			console.error('Error liking tweet:', error);
+		const profile = await profileContract.methods.getProfile(account).call();
+		setLoading(false);
+		return profile.displayName;
+	}
+
+	useEffect(() => {
+		if (contract && account) {
+			if (profileExists) {
+				getTweets();
+			} else {
+				checkProfile();
+			}
 		}
-	};
+	}, [contract, account, profileExists]);
 
-	const unLikeTweetBtn = async (e, author, tweet) => {
-		try {
-			await contract.methods
-				.unlikeTweet(tweet.id, author)
-				.send({ from: address });
-			displayTweets(address);
-			console.log(tweet.isLiked);
-		} catch (error) {
-			console.error('Error liking tweet:', error);
+	function shortAddress(address, startLength = 6, endLength = 4) {
+		if (address === account && profileExists) {
+			return profileExists;
+		} else if (address) {
+			return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
 		}
-	};
-
-	// Run when page loads
-	useEffect(() => {}, []);
+	}
 
 	return (
 		<div className="container">
 			<h1>Twitter DAPP</h1>
-			{noWallerProvider && <div id="connectMessage">{noWallerProvider}</div>}
-			<div className="connect">
-				<button id="connectWalletBtn" onClick={() => connectWallet()}>
-					Connect Wallet
-				</button>
-				<div id="userAddress">{displayAddress}</div>
-				<div id="connectMessage" ref={msgRef}>
-					Please connect your wallet to tweet.
-				</div>
-			</div>
-
-			<form
-				id="tweetForm"
-				style={{ display: 'none' }}
-				ref={formRef}
-				onSubmit={(e) => formSubmit(e)}
-			>
-				<textarea
-					id="tweetContent"
-					rows="4"
-					placeholder="What's happening?"
-					value={text}
-					onChange={(e) => setText(e.target.value)}
-				></textarea>
-				<br />
-				<button id="tweetSubmitBtn" type="submit">
-					{loading ? <div className="spinner"></div> : 'Tweet'}
-				</button>
-			</form>
-			<div id="tweetsContainer">
-				{tweets.map((tweet, id) => {
-					return (
-						<div className="tweet">
-							<img
-								src={`https://avatars.dicebear.com/api/human/${tweet.author}.svg`}
-								alt=""
-								className="user-icon"
-							/>
-							<div className="tweet-inner">
-								<div className="author">{displayAddress}</div>
-								<div className="content">{tweet.content}</div>
-								<button
-									className="like-button"
-									onClick={(e) => {
-										tweet.isLiked
-											? unLikeTweetBtn(e, address, tweet)
-											: likeTweetBtn(e, address, tweet);
-									}}
-								>
-									{tweet.isLiked ? (
-										<AiFillHeart size={26} color={'#e0245e'} />
-									) : (
-										<AiOutlineHeart size={26} />
-									)}
-									<span className="likes-count">{tweet.likes}</span>
-								</button>
-							</div>
-						</div>
-					);
-				})}
-			</div>
+			<Connect
+				open={open}
+				web3={web3}
+				setWeb3={setWeb3}
+				account={account}
+				setAccount={setAccount}
+				setContract={setContract}
+				shortAddress={shortAddress}
+				setProfileContract={setProfileContract}
+			/>
+			{!loading && account && profileExists ? (
+				<>
+					<AddTweet
+						contract={contract}
+						account={account}
+						getTweets={getTweets}
+					/>
+					<Tweets
+						contract={contract}
+						account={account}
+						tweets={tweets}
+						setTweets={setTweets}
+						getTweets={getTweets}
+						shortAddress={shortAddress}
+					/>
+				</>
+			) : (
+				account &&
+				!loading && (
+					<ProfileCreation
+						account={account}
+						profileContract={profileContract}
+						checkProfile={checkProfile}
+					/>
+				)
+			)}
 		</div>
 	);
 }
